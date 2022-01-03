@@ -1,0 +1,34 @@
+{
+    "name": "techblog-2",
+    "version": "1.0.0",
+    "description": "readme.md",
+    "main": "server.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "node server.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/samuelsholib/techBlog-2.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/samuelsholib/techBlog-2/issues"
+    },
+    "homepage": "https://github.com/samuelsholib/techBlog-2#readme",
+    "dependencies": {
+        "bcrypt": "^5.0.1",
+        "connect": "^3.7.0",
+        "connect-session-sequelize": "^7.1.2",
+        "dotenv": "^10.0.0",
+        "express": "^4.17.2",
+        "express-handlebars": "^6.0.2",
+        "express-session": "^1.17.2",
+        "helpers": "^0.0.6",
+        "mysql2": "^2.3.3",
+        "path": "^0.12.7",
+        "sequelize": "^7.0.0-alpha.2"
+    }
+}
