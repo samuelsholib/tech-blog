@@ -11,8 +11,8 @@ Comment.init({
         autoIncrement: true,
     },
     comment_content: {
-        type: DataTypes.TEXT,
-        allowNull: true
+        type: DataTypes.STRING,
+        allowNull: false
     },
     post_id: {
         type: DataTypes.INTEGER,
@@ -35,7 +35,6 @@ Comment.init({
     timestamps: false,
     freezeTableName: true,
     underscored: true,
-    modelName: 'comment',
 });
 
 module.exports = Comment;

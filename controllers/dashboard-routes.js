@@ -9,17 +9,17 @@ router.get('/', withAuth, (req, res) => {
             where: {
                 user_id: req.session.user_id
             },
-            attributes: ['id', 'title', 'post_content'],
+            attributes: ["id", "title", "post_content", "user_id"],
             include: [{
                     model: User,
-                    attributes: ['username', 'email', 'password']
+                    attributes: ['id', 'username', 'email', 'password']
                 },
                 {
                     model: Comment,
-                    attributes: ['id', 'comment_content', 'post_id', 'user_id'],
+                    attributes: ["id", "comment_content", "post_id", "user_id"],
                     include: {
                         model: User,
-                        attributes: ['username', 'email', 'password']
+                        attributes: ['id', 'username', 'email', 'password']
                     }
                 }
             ]
@@ -34,43 +34,43 @@ router.get('/', withAuth, (req, res) => {
         });
 });
 
-//get route to update a single post by id
-router.get('/edit/:id', withAuth, (req, res) => {
-    Post.findOne({
-            where: {
-                id: req.params.id
-            },
-            attributes: ['id', 'title', 'post_content'],
-            include: [{
-                    model: User,
-                    attributes: ['username', 'email', 'password']
-                },
-                {
-                    model: Comment,
-                    attributes: ['id', 'comment_content', 'post_id', 'user_id'],
-                    include: {
-                        model: User,
-                        attributes: ['username']
-                    }
-                }
-            ]
-        })
-        .then(dbPostData => {
-            if (!dbPostData) {
-                res.status(404).json({ message: 'No post found with this id' });
-                return;
-            }
-            const post = dbPostData.get({ plain: true });
-            // pass to the template
-            res.render('edit-post', {
-                post,
-                loggedIn: req.session.loggedIn
-            });
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).json(err);
-        });
-});
+// //get route to update a single post by id
+// router.get('/edit/:id', withAuth, (req, res) => {
+//     Post.findOne({
+//             where: {
+//                 id: req.params.id
+//             },
+//             attributes: ['id', 'title', 'body'],
+//             include: [{
+//                     model: User,
+//                     attributes: ['username', 'email', 'password']
+//                 },
+//                 {
+//                     model: Comment,
+//                     attributes: ["id", "comment_content", "post_id", "user_id"],
+//                     include: {
+//                         model: User,
+//                         attributes: ['username', 'email', 'password']
+//                     }
+//                 }
+//             ]
+//         })
+//         .then(dbPostData => {
+//             if (!dbPostData) {
+//                 res.status(404).json({ message: 'No post found with this id' });
+//                 return;
+//             }
+//             const post = dbPostData.get({ plain: true });
+//             // pass to the template
+//             res.render('edit-post', {
+//                 post,
+//                 loggedIn: req.session.loggedIn
+//             });
+//         })
+//         .catch(err => {
+//             console.log(err);
+//             res.status(500).json(err);
+//         });
+// });
 
 module.exports = router;
