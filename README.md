@@ -1,4 +1,4 @@
-# techBlog-2
+# tech-blog
 # 14 Model-View-Controller (MVC): Tech Blog
 
 ## Your Task
@@ -51,4 +51,8 @@ WHEN I click on the logout option in the navigation
 THEN I am signed out of the site
 WHEN I am idle on the site for more than a set time
 THEN I am able to view comments but I am prompted to log in again before I can add, update, or delete comments
+<<<<<<< HEAD
 ```
+=======
+```
+>>>>>>> ea8a42112e72e588f0fe638f424ef5c513e3cb61
