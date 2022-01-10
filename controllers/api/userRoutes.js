@@ -1,237 +1,150 @@
 const router = require('express').Router();
-const { User, Post, Comment } = require('../../models');
+const { User, Post, Comment } = require('../../models')
 const withAuth = require('../../utils/auth');
 
-// Prefix of these routes is '/api/artists'
-
-// GET route for artist
-router.get('/', withAuth, async(req, res) => {
-    try {
-        const artists = await User.findAll({
-            raw: true,
-            order: [
-                ['name', ''],
-            ]
+router.get('/', (req, res) => {
+    User.findAll({
+            attributes: { exclude: ['password'] }
+        })
+        .then(dbUserData => res.json(dbUserData))
+        .catch(err => {
+            console.log(err);
+            res.status(500).json(err);
         });
-        res
-            .status(200)
-            .render('Artists/admin/index', { layout: 'admin', artists: artists });
-    } catch (err) {
-        res
-            .status(400)
-            .json(err);
-    }
 });
 
-// for search
-router.get('/search/:term', async(req, res) => {
-    try {
-        const results = await Post.findAll({
-            raw: true,
-            where: {
-                name: req.params.term
-            }
-        });
-        res
-            .status(200)
-            .json(results);
-    } catch (err) {
-        res
-            .status(500)
-            .json(err);
-    }
-});
-
-// View Artist
-router.get('/view/:id', withAuth, async(req, res) => {
-    try {
-        const artist = await Artist.findAll({
-            raw: true,
+router.get('/:id', (req, res) => {
+    User.findOne({
+            attributes: { exclude: ['password'] },
             where: {
                 id: req.params.id
             },
             include: [{
-                model: Song
-            }]
-        });
-        res
-            .status(200)
-            .render('Artists/admin/view', { layout: 'admin', artist: artist });
-    } catch (err) {
-        res
-            .status(500)
-            .json(err);
-    }
-});
+                    model: Post,
+                    attributes: ["id", "title", "post_content", "user_id"],
+                },
+                {
+                    model: Comment,
+                    attributes: ["id", "comment_content", "post_id", "user_id"],
+                    include: {
+                        model: Post,
+                        attributes: ['title']
+                    }
+                }
+            ]
 
-// Display create new artist page
-router.get('/add', withAuth, async(req, res) => {
-    res
-        .status(200)
-        .render('Artists/admin/add', { layout: 'admin' });
-});
-
-// router.post('/', async(req, res) => {
-//     try {
-//         const artistData = await Artist.create(req.body);
-//         // res.status(200).json(artistData);
-//         res.render('new-artist', { artist: artistData });
-
-// Create a new artist
-router.post('/add', withAuth, async(req, res) => {
-    try {
-        const artistData = await Artist.create(req.body);
-        res
-            .status(200)
-            .json(artistData);
-        // res.redirect(200,'/api/artists');
-    } catch (err) {
-        res
-            .status(500)
-            .json(err);
-    }
-});
-
-// Display edit Artist page
-router.get('/edit/:id', withAuth, async(req, res) => {
-    try {
-        const artist = await Artist.findByPk(req.params.id, { raw: true });
-        res
-            .status(200)
-            .render('Artists/admin/edit', { layout: 'admin', artist: artist });
-    } catch (err) {
-        res
-            .status(500)
-            .json(err);
-    }
-});
-
-//get route for all the Artists
-router.get("/", async(req, res) => {
-    Artist.findAll({
-            attributes: ["id", "name"],
-            include: [{
-                model: Song,
-                as: "songs",
-                attributes: ["id", "name"],
-            }, ],
         })
-        .then((dbArtistData) => {
-            res.json(dbArtistData);
-        })
-        .catch((err) => {
-            console.log(err);
-            res.status(500).json(err);
-        });
-});
-
-//get a single Artist by  id
-router.get("/:id", (req, res) => {
-    Artist.findOne({
-            where: {
-                id: req.params.id,
-            },
-            attributes: ["id", "name"],
-            include: [{
-                model: Song,
-                as: "songs",
-                attributes: ["id", "name"],
-            }, ],
-        })
-        .then((dbArtistData) => {
-            if (!dbArtistData) {
-                res.status(404).json({ message: "No Artist found with this id" });
+        .then(dbUserData => {
+            if (!dbUserData) {
+                res.status(404).json({ message: 'No user found with this id' });
                 return;
             }
-            res.json(dbArtistData);
+            res.json(dbUserData);
         })
-        .catch((err) => {
+        .catch(err => {
             console.log(err);
-            res.status(500).json(err);
+            res.status(400).json(err);
         });
 });
 
-
-router.post("/", (req, res) => {
-    // to add a new Artist
-    Artist.create({
-            name: req.body.name,
+router.post('/', (req, res) => {
+    User.create({
+            username: req.body.username,
+            email: req.body.email,
+            password: req.body.password,
 
         })
-        .then((dbArtistData) => {
-            res.json(dbArtistData);
-        })
-        .catch((err) => {
-            console.log(err);
-            res.status(500).json(err);
+        .then(dbUserData => {
+            req.session.save(() => {
+                req.session.user_id = dbUserData.id;
+                req.session.username = dbUserData.username;
+                req.session.email = dbUserData.email
+                req.session.password = dbUserData.password
+                req.session.loggedIn = true;
+
+                res.json(dbUserData);
+            });
         });
 });
 
-//update Artist by id
-router.put("/:id", (req, res) => {
-    console.log("id", req.params.id);
-    Artist.update({
-            name: req.body.name,
-        }, {
-            where: {
-                id: req.params.id,
-            },
-        })
-        .then((dbArtistData) => {
-            if (!dbArtistData) {
-                res.status(404).json({ message: "No Artist found with this id" });
-                return;
-            }
-            res.json(dbArtistData);
-        })
-        .catch((err) => {
-            console.log(err);
-            res.json(err);
+router.post('/login', (req, res) => {
+    User.findOne({
+        where: {
+            email: req.body.email
+        }
+    }).then(dbUserData => {
+        if (!dbUserData) {
+            res.status(400).json({ message: 'No user with that email address!' });
+            return;
+        }
+
+        const passwordCheck = dbUserData.checkPassword(req.body.password);
+
+        if (!passwordCheck) {
+            res.status(400).json({ message: 'Incorrect password!' });
+            return;
+        }
+
+        req.session.save(() => {
+            // declare session variables
+            req.session.user_id = dbUserData.id;
+            req.session.username = dbUserData.username;
+            req.session.email = dbUserData.email;
+            req.session.loggedIn = true;
+
+            res.json({ user: dbUserData, message: 'You are now logged in!' });
         });
+    });
 });
 
-//to delete Artist by id
-router.delete("/:id", (req, res) => {
-    Artist.destroy({
-            where: {
-                id: req.params.id,
-            },
-        })
-        .then((dbArtistData) => {
-            if (!dbArtistData) {
-                res.status(404).json({ message: "No Artist found with this id" });
-                return;
-            }
-            res.json(dbArtistData);
-        })
-        .catch((err) => {
-            console.log(err);
-            res.status(500).json(err);
-        });
-});
 
-// Edit an Artist
-router.put('/edit/:id', withAuth, async(req, res) => {
-    try {
-        const artist = await Artist.update({
-            name: req.body.name,
-            imgur_url: req.body.imgur_url
-        }, {
-            where: {
-                id: req.body.id
-            }
+router.post('/logout', (req, res) => {
+    if (req.session.loggedIn) {
+        req.session.destroy(() => {
+            res.status(204).end();
         });
-        req.session.message = `Artist "${req.body.name}" updated successfully.`;
-        req.session.message_status = true;
-        res
-            .status(200)
-            .render('Artists/admin/index', { layout: 'admin' });
-    } catch (err) {
-        res
-            .status(500)
-            .json(err);
+    } else {
+        res.status(404).end();
     }
+});
 
+router.put('/:id', withAuth, (req, res) => {
+    User.update(req.body, {
+            individualHooks: true,
+            where: {
+                id: req.params.id
+            }
+        })
+        .then(dbUserData => {
+            if (!dbUserData[0]) {
+                res.status(404).json({ message: 'No user found with this id' });
+                return;
+            }
+            res.json(dbUserData);
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(400).json(err);
+        });
+});
+
+router.delete('/:id', withAuth, (req, res) => {
+    User.destroy({
+            where: {
+                id: req.params.id
+            }
+        })
+        .then(dbUserData => {
+            if (!dbUserData) {
+                res.status(404).json({ message: 'No user found with this id' });
+                return;
+            }
+            res.json(dbUserData);
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json(err);
+        });
 });
 
 module.exports = router;
