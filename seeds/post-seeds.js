@@ -25,6 +25,11 @@ const postData = [{
         "title": "Wired does the job",
         "post_content": "Wired.com focuses on how emerging technologies affect culture, the economy, and politics.The website provides an in-depth coverage of current and future trends in technology.",
         "user_id": "5"
+    },
+    {
+        "title": "Recode",
+        "post_content": "Currently, owned by VOX media, Recode gives the most updated independent technology news, analysis trends, and reviews from the most respected and informed journalists as well as bloggers in media and technology.",
+        "user_id": "6"
     }
 ]
 

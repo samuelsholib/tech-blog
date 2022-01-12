@@ -27,6 +27,39 @@ router.get('/', withAuth, (req, res) => {
             res.status(500).json(err);
         });
 });
+// to find a single comment by id 
+
+router.get('/:id', (req, res) => {
+    Comment.findOne({
+            where: {
+                id: req.params.id,
+            }
+        })
+        .then(dbCommentData => res.json(dbCommentData))
+        .catch(err => {
+            console.log(err);
+            res.status(500).json(err);
+        });
+});
+
+
+// .then((dbCommentData) => {
+//     // to serialize comment data
+//     if (!dbCommentData) {
+//         res.status(404).json({ message: "No Comment available with this id" });
+//         return;
+//     }
+//     const comments = dbCommentData.map((comment) => comment.get({ plain: true }));
+//     console.log(comments);
+//     res.render("comments", { comments, loggedIn: req.session.loggedIn });
+// })
+
+
+//     .catch(err => {
+//         console.log(err);
+//         res.status(500).json(err);
+//     });
+// });
 
 // to add a new comment
 router.post('/', withAuth, (req, res) => {

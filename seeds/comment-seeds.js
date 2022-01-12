@@ -27,6 +27,11 @@ const commentData = [{
         "user_id": "5",
         "post_id": "5"
     },
+    {
+        "comment_content": "For updated info in tech follow Recode",
+        "user_id": "6",
+        "post_id": "6"
+    }
 
 ]
 
