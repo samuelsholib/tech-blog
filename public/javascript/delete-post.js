@@ -1,26 +1,15 @@
-async function deleteFormHandler(event) {
+const deletePostHandler = async function(event) {
+    console.log("clicked", event)
     event.preventDefault();
+    const postId = document.getElementById('post-id')
 
-    const id = window.location.toString().split('/')[
-        window.location.toString().split('/').length - 1
-    ];
-
-    const response = await fetch(`/api/posts/${id}`, {
-        method: 'DELETE',
-        body: JSON.stringify({
-            post_id: id
-        }),
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    });
-
-    if (response.ok) {
-        document.location.replace('/dashboard/');
-    } else {
-        alert(response.statusText);
-    }
-
+    fetch("/api/post/" + postId.value, {
+        method: "delete"
+    })
+    .then(function() {
+        document.location.replace("/dashboard");
+    })
+    .catch(err => console.log(err))
 }
 
-document.querySelector('.delete-post-btn').addEventListener('click', deleteFormHandler);
+document.querySelector("#delete-btn").addEventListener("click", deletePostHandler);
